@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <p>
+        A strategy one can use to obtain P(Z = 1) is to condition on another random variable Y denoting the event that
+        the best candidate will be the <i>i</i>th interviewee in the process. By using marginalization over Y,
+        equation (1) is obtained.
+    </p>
+    <p>
+        Using the proposed strategy, P(Z = 1|Y = <i>i</i>) will be 0 for all <i>i</i> less than <i>k</i> + 1, which
+        is the cut-off value. The reason for this is that P(Z = 1|Y = <i>i</i>) is the probability that
+        the strategy will pick the best candidate when the position of the candidate is known to be <i>i</i>. However,
+        the strategy will never pick the right candidate as long as the best candidate is among the <i>k</i> candidates
+        rejected. Therefore, the probability is P(Z = 1|Y = <i>i</i>) is 0 for all <i>i</i> less than
+        <i>i</i> less than <i>k</i> + 1.
+    </p>
+    <p>
+        Now, in order for the strategy to be able to pick the best candidate, the best candidate among the <i>i</i> -
+        1 first candidates must be among the k rejected. Seeing that this candidate can be located anywhere among the
+        <i>k</i> candidates, <i>k</i>/(<i>i</i> - 1) is obtained.
+    </p>
+    <p>
+        By noting that the best candidate is uniformly distributed among the total of <i>n</i> candidates,
+        one can see that P(Y = <i>i</i>) equals 1/<i>n</i>. Thus, equation (2) has been obtained. By using known rules
+        of sums, <k>k</k> and 1/<i>n</i> can be extracted by the sum, the result of which is equation (3).
+    </p>
+    <p>
+        Equation (3) will be less than or equal to the integral found in equation (4), which equals equation (5).
+    </p>
+    <p>
+        With the result found in equation and (5), the desired result has been proven.
+    </p>
+</head>
+<body>
+
+</body>
+</html>
