@@ -1,5 +1,23 @@
 "use strict";
 
+let questions = document.getElementsByClassName("question");
+
+for (let i = 0; i < questions.length; ++i) {
+	let question = questions[i];
+
+	question.style.display = "none"
+	let toggleQuestionButton = document.createElement("button");
+	toggleQuestionButton.innerHTML = "(toggle question)";
+	toggleQuestionButton.classList.add("toggle");
+	toggleQuestionButton.onclick = (e) => {
+		if (question.style.display === "none")
+			{ question.style.display = "block" }
+		else
+			{ question.style.display = "none" }
+	}
+	question.after(toggleQuestionButton);
+}
+
 let figures = document.getElementsByTagName("figure");
 let codeCount = 0, figureCount = 0, outputCount = 0;
 
@@ -13,14 +31,16 @@ for (let i = 0; i < figures.length; ++i) {
 	||  figure.getElementsByTagName('pre')[0]
 	||  figure.getElementsByTagName('output')[0];
 
+	// get the tag name
 	let type = figContent.tagName.toLowerCase();
 
-	// get the count of the type
+	// get the count and the semantic name for the type
 	let count = -1;
+	let typeName = "None"
 	switch (type) {
-		case "figure": count = ++figureCount; break;
-		case "output": count = ++outputCount; break;
-		case "pre":    count = ++codeCount;   break;
+		case "img": 	 count = ++figureCount; typeName = "figure";  break;
+		case "output": count = ++outputCount; typeName = "listing"; break;
+		case "pre":    count = ++codeCount;   typeName = "listing"; break;
 	}
 
 	// get the title (or caption if no title)
@@ -29,21 +49,12 @@ for (let i = 0; i < figures.length; ++i) {
 	||  figure.getElementsByTagName('figcaption')[0];
 
 	// prepend count to title
-	figTitle.insertAdjacentHTML("afterbegin", `${count}: `);
+	figTitle.insertAdjacentHTML("afterbegin", `${typeName} ${count}: `);
 
 	// add count to references
 	let references = document.getElementsByClassName(figure.id);
-	console.log(references);
 	for (let j = 0; j < references.length; ++j) {
 		let reference = references[j];
-
-		// get the semantic name for the type
-		let typeName = "None"
-		switch (type) {
-			case "figure": typeName = "figur";           break;
-			case "output": typeName = "programutskrift"; break;
-			case "pre":    typeName = "programutskrift"; break;
-		}
 		reference.innerHTML = `${typeName} ${count}`;
 		reference.href = `#${figure.id}`;
 	}

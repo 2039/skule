@@ -1,0 +1,343 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Stokastisk modellering</title>
+		<script defer src="proj.js"></script>
+		<script src="https:/cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML" defer>
+			MathJax.Hub.Config({
+				TeX: { TagSide: "left", equationNumbers: { autoNumber: "AMS" } }
+			});
+		</script>
+		<link media="screen" rel="stylesheet" href="proj.css">
+		<link media="print" rel="stylesheet" href="pproj.css">
+	</head>
+	<body>
+		<header>
+			<h2>Prosjekt 1</h2>
+			<h4>Eivind Baltzersen and Christer Hølestøl</h4>
+			<h4>2017-09-<span style="color:red">??</span></h4>
+		</header>
+		<main>
+			<div class="content">
+				<h3>Background information</h3>
+				<ul>
+					<li>The deadline for the project is Monday 25 Sept, 14:00.</li>
+					<li>The projects (three in all) will count 20% of the final mark.</li>
+					<li>The project work is required to be admitted to the exam.</li>
+					<li>In order to pass this project a reasonable attempt must be made to solve all problems.</li>
+					<li>The project should be done in groups of two or three persons. You can sign up as a group in Blackboard.</li>
+					<li>Submit the project by uploading the project report as a pdf file to your group folder in Blackboard. Attach the code as separate files.</li>
+					<li>Your project report should include both equations with calculations, plots and interpretation as text.</li>
+					<li>Computer-code should be written in <code>Matlab</code>, <code>R</code> or <code>Python</code>. Please try to make your code readable and add comments to describe what you do.</li>
+					<li>Lectures on 18 and 22 Sept will be set aside to work on the project. You will get assistance in the lecture room 8:15-10:00.</li>
+				</ul>
+
+				<div id="abstract">
+					<h4>Abstract</h4>
+					This project describes method for solving algorithms related to the secretary problem (aka the marriage problem, best prize problem, etc.), and a binary Markov chain. This was solved using Python. The implementation make use of basic linear algebra.
+				</div>
+
+				<h3>Introduction</h3>
+				This project report was written by Eivind Baltzersen and Christer Hølestøl as an assignment to the course TMA4265 Stokastisk modellering. The intent was to solve stochastic problems numerically using computer software, and to compare the results to analytic solutions.
+
+				<h3>Problem 1 : Secretary problem</h3>
+				<div class="question">
+					Consider the secretary problem (a.k.a. marriage problem, best prize problem, etc.), where a company is going to employ a secretary among <script type="math/tex">n</script> candidates for the position. Each candidate has value <script type="math/tex" >x_i, i = 1,\ldots,n</script>, and the order of the candidates is assumed to be entirely random. The company will make decisions as they go along interviewing : a candidate gets to know right after the interview whether (s)he gets the job or not. Once a candidate has been turned down (s)he can never be hired. The following strategy is run by the company:
+					<ul>
+						<li>Interview the first <script type="math/tex">k</script> candidates, and turn down every one of them.</li>
+						<li>Set <script type="math/tex" >x^* = \max\{x_1,\ldots,x_k\}</script> to be the highest value among the first <script type="math/tex">k</script> candidates.</li>
+						<li>Pick the first subsequent candidate <script type="math/tex">\ell \in \{k+1, k+2,\ldots,n\}</script> with value <script type="math/tex">x_{\ell} > x^*</script>, or the last candidate.</li>
+					</ul>
+					Based on this strategy, we will compute the probability of obtaining the best candidate. We will also find the optimal choice for <script type="math/tex">k</script>.
+				</div>
+
+				<h4>a)</h4>
+				<div class="question">
+					Let <script type="math/tex" >Z = 1</script> denote the event that this strategy gives the best candidate. Define another event <script type="math/tex" >Y = i</script> for the event that the best candidate is number <script type="math/tex">i</script> in the interview process.
+					<br>
+					By conditioning on <script type="math/tex" >Y = i</script>, and then marginalizing in the joint for <script type="math/tex">Z</script> and <script type="math/tex">Y</script>, show that the success probability of the strategy is
+					<script type="math/tex; mode=display">
+						P(Z = 1)
+						= \sum_{i=1}^n P(Z = 1\,|\,Y = i)P(Y = i)
+						= \frac{k}{n}\sum_{i=k+1}^n \frac{}{i-1} \approx \frac{k}{n}\ln\left(\frac{k}{n}\right)
+					</script>
+				</div>
+				\begin{align}
+					P(Z = 1)
+					&= \sum_{i=1}^n P(Z = 1\,|\,Y = i)P(Y = i)
+					\\&= \sum_{i=k+1}^n \frac{k}{i-1}\frac{}{n}
+					\\&= \frac{k}{n}\sum_{i=k+1}^n \frac{}{i-1}
+					\\&\geq \frac{k}{n}\int_{k+1}^{n+1} \frac{}{i-1}\,\mathrm{d}x
+					\\&= \frac{k}{n}\ln\left(\frac{k}{n}\right)
+				\end{align}
+				Similarly, one may show that
+				\begin{equation}
+					P(Z = 1) \leq \frac{k}{n}\ln\left(\frac{k-1}{n-1}\right)
+				\end{equation}
+				<h4>b)</h4>
+				<div class="question">
+					Compute the approximate mode of <script type="math/tex" >P(Z = 1)</script> by differentiating <script type="math/tex" >P(Z = 1)</script> with respect to <script type="math/tex">k</script>.
+					<br>
+					Fix <script type="math/tex" >n = 30</script>, and draw a plot of <script type="math/tex" >P(Z = 1)</script> as a function of <script type="math/tex">k</script>.
+					<br>
+					Fix <script type="math/tex" >n = 40</script>, and draw a plot of <script type="math/tex" >P(Z = 1)</script> as a function of <script type="math/tex">k</script>.
+					<br>
+					Interpret the result.
+				</div>
+
+				<h4>c)</h4>
+				<div class="question">
+					Fix <script type="math/tex" >n = 30</script>. Draw independent realizations of values <script type="math/tex" >x_i^b, i = 1,\ldots, n,\, b = 1,\ldots,1000</script> from a uniform distribution. Run the above strategy for each realization <script type="math/tex">b</script> (keeping <script type="math/tex">k</script> at the optimal level from b)) and use the results to answer the following:
+					<ul>
+						<li>How many times does the strategy get the best candidate? Is the fraction similar to the analytical probability in b)?</li>
+						<li>How often does the strategy give a candidate that is among the top three highest values?</li>
+						<li>How often does the strategy end up interviewing all candidates?</li>
+					</ul>
+				</div>
+
+				<h4>d)</h4>
+				<div class="question">
+					Assume the number of candidates is unknown. Now, <script type="math/tex">n</script> is uniformly distributed between <script type="math/tex">16</script> and <script type="math/tex">45</script>. For a strategy with fixed <script type="math/tex">k\in\{1,\ldots,15\}</script>, the probability of getting the best secretary is now
+					<script type="math/tex; mode=display">
+						P(Z = 1) = \sum_{n=16}^{45} P(Z = 1\,|\,N = n)P(N = n),
+					</script>
+					where <script type="math/tex" >P(Z = n)</script> is the uniform distribution, and <script type="math/tex" >P(Z = 1\,|\,N = n)</script> is calculated in a), for fixed <script type="math/tex">n</script>.
+					<ul>
+						<li>Plot <script type="math/tex" >P(Z = 1)</script> as a function of <script type="math/tex">k</script> for this model. What is now the optimal <script type="math/tex">k</script>?</li>
+						<li>Draw independent realizations of candidate number <script type="math/tex">n^b</script> from the uniform distribution on <script type="math/tex">[16,\,45]</script>, and values <script type="math/tex" >x_i^b, i = 1,\ldots,n^b</script> for <script type="math/tex" >b = 1,\ldots,1000</script>. Run the strategy for each realization of <script type="math/tex">b</script>, and answer the questions listed in c).</li>
+					</ul>
+				</div>
+
+				<h3>Problem 2 : Avalanche risk</h3>
+				<div class="question">
+					Parts of a railroad track are at risk of snow avalanche. The avalanche risks are discretized in low (1) or high (2) classes. Low risk is more likely for low altitudes, while high risk is more likely for higher altitudes. The railroad track is split in <script type="math/tex">50</script> different sections, of increasing altitude, and the risk class <script type="math/tex">X_n \in \{1,2\}, n = 1,\ldots,50</script> is modeled by a Markov chain as follows: Initial probability of low risk is <script type="math/tex" >P(X_1 = 1) = 0.99</script> and the transition probabilities are defined by <script type="math/tex" >P(X_{n+1} = 1\,|\,X_n = 1) = 0.95, P(X_{n+1} = 2\,|\,X_n = 2) = 1.00</script>.
+				</div>
+
+				<h4>Probability syntax</h4>
+				Writing mathematical syntax in Python isn't feasible, so a new syntax was created; <script type="math/tex" >P(X_k=j\,|\,X_\ell=i)</script> is written as <code >P(X = k, i = &#x2113;)[j]</code>. <code>P()</code> returns a (slightly modified) namedtuple object of the state distribution at <code>k</code>, and the state probabilities are accessible by either using <code>["key"]</code> or <code>[val]</code> as a key, e.g. <code>["low"]</code> or <code>[0]</code>. For instance <script type="math/tex" >P(X_3=\text{low risk}\,|\,X_4=\text{high risk})</script> would be <code >P(X = 3, high = 4)["low"]</code> or <code >P(X = 3, high = 4)[0]</code>. The implementation of <code>P()</code> is described in <a class="code:P"></a>
+
+				<figure id="code:P">
+					<h4></h4>
+<pre class="Python"><code class="me llamo">
+def P(X, **sensor):
+	altitude = X #alias
+	if not sensor:
+		#A1 turns [[matrix]] to [list], which is more easily accessible
+		return Risks(*(bottom_state @ P_transitions[altitude]).A1)
+
+	#sensor exists = conditional probability
+	sensor_kw, sensor_altitude = sensor.popitem()
+	sensor_state = {"low":[1,0],"high":[0,1]}[sensor_kw]
+	distance_from_sensor = abs(sensor_altitude - altitude)
+
+	#If X is above sensor altitude, we can discard of bottom_state
+	if sensor_altitude <= altitude:
+		return Risks(*(sensor_state @ P_transitions[distance_from_sensor]).A1)
+
+	#Otherwise we need take care of both sensor_state and bottom_state
+	elif sensor_altitude > altitude:
+		return Risks(
+		#P(altitude = low | sensor = state)
+		P(X = altitude)["low"]
+		* P(X = sensor_altitude, low = altitude)[sensor_kw]
+		/(
+		P(X = altitude)["low"]
+		* P(X = sensor_altitude, low = altitude)[sensor_kw]
+		+ P(X = altitude)["high"]
+		* P(X = sensor_altitude, high = altitude)[sensor_kw]
+		)
+		,
+		#P(altitude = high | sensor = state)
+		P(X = altitude)["high"] *
+		P(X = sensor_altitude, high = altitude)[sensor_kw]
+		/(
+		P(X = altitude)["low"]
+		* P(X = sensor_altitude, low = altitude)[sensor_kw]
+		+ P(X = altitude)["high"]
+		* P(X = sensor_altitude, high = altitude)[sensor_kw])
+		)
+</code></pre>
+					<figcaption>køkøkø</figcaption>
+				</figure>
+
+				<h4>a)</h4>
+				<div class="question">
+					Compute and plot the marginal probabilities <script type="math/tex" >P(X_n = 1)</script> for <script type="math/tex" >n = 1,\ldots,50</script>.
+				</div>
+
+				<figure id="code:LRA">
+					<h4></h4>
+<pre class="Python"><code class="me llamo">
+low_altitude_risks = [P(X = altitude)["low"] for altitude in range(altitudes)]
+</code></pre>
+					<figcaption>Koden viser</figcaption>
+				</figure>
+
+				<figure id="img:LRA">
+					<h4></h4>
+					<img src="figures/p1p2f1.png">
+					<figcaption>Bildet viser</figcaption>
+				</figure>
+
+				<a class="figure:LRA">, <a class="code:LRA"></a></a>
+
+				<h4>b)</h4>
+				<div class="question">
+					Draw <script type="math/tex">25</script> realizations of the Markov chain, and visualize the results as an image with time on the first axis and the realization number on the second axis. Compare the average results of the realizations with the marginal probabilities <script type="math/tex" >P(X_n = 1), n = 1,\ldots,50</script>.
+				</div>
+
+				<figure id="code:RGA">
+					<h4></h4>
+<pre class="Python"><code class="me llamo">
+def realization():
+	risk_at_altitudes = [None for alt in range(altitudes)]
+
+	current_state = choice([0, 1], p = bottom_state)
+	risk_at_altitudes[0] = 1 - current_state
+
+	for altitude in range(1, altitudes):
+		current_transition = (P_transition[current_state]).A1
+
+		current_state = choice([0, 1], p = current_transition)
+		risk_at_altitudes[altitude] = 1 - current_state
+
+	return risk_at_altitudes
+
+realizations = [realization() for _ in range(25)]
+average_risks = [sum(alt_risk)/len(alt_risk) for alt_risk in zip(*realizations)]
+</code></pre>
+					<figcaption>The above listing demonstrates how a realization of a railroad is performed. Note that 0, the low risk state, is mapped to 1, and vice-versa for the high risk state in <code>risk_at_altitudes</code>.</figcaption>
+				</figure>
+
+				<figure id="img:RGA">
+					<h4></h4>
+					<img src="figures/p1p2f2.png">
+					<figcaption>Bildet viser</figcaption>
+				</figure>
+
+				<figure id="img:ARGA">
+					<h4></h4>
+					<img src="figures/p1p2f3.png">
+					<figcaption>Bildet viser</figcaption>
+				</figure>
+
+				<h4>c)</h4>
+				<div class="question">
+					One can install a sensor at location <script type="math/tex">k</script> to monitor the risk. This sensor will give the perfect information about <script type="math/tex">X_k</script>. Setting <script type="math/tex" >k = 20</script>, compute and plot the following:
+					<ul>
+						<li>The forward probability <script type="math/tex" >P(X_{\ell} = 2\,|\,X_k = i), \ell = k+1,\ldots,50</script> for <script type="math/tex" >i = 1</script> and <script type="math/tex" >i = 2</script>.</li>
+						<li>The backward probability <script type="math/tex" >P(X_{\ell} = 2\,|\,X_k = i), \ell = k-1,\ldots,1</script> for <script type="math/tex" >i = 1</script> and <script type="math/tex" >i = 2</script>.</li>
+					</ul>
+					Remark: For the backward probability you must first find the backward transition matrix <script type="math/tex" >P(X_{n-1} = j\,|\,X_n = i)</script> using Bayes rule, the (forward) transition probabilities and the marginal probabilities from a).
+				</div>
+
+				\begin{align}
+					&P\left(X_\ell = j\,\middle|\,X_k = i\right)
+					\\=&\,\frac{
+						P\left(X_k = i\,\middle|\,X_\ell = j\right)
+						P\left(X_\ell = j\right)
+					}
+					{
+						P\left(X_k = i\right)
+					}
+					\\=&\,\frac{
+						P\left(X_k = i\,\middle|\,X_\ell = j\right)
+						P\left(X_\ell = j\right)
+					}
+					{
+					P\left(X_k = i\,\middle|\,X_\ell = j\right)
+					P\left(X_\ell = j\right)
+					+
+					P\left(X_k = i\,\middle|\,X_\ell = \bar{\jmath}\right)
+					P\left(X_\ell = \bar{\jmath}\right)
+					}
+				\end{align}
+
+				<figure id="code:HRGLR">
+					<h4></h4>
+<pre class="Python"><code class="me llamo">
+k = 19
+high_alt_risks_low = [P(X = alt, low = k)["high"] for alt in range(altitudes)]
+high_alt_risks_high = [P(X = alt, high = k)["high"] for alt in range(altitudes)]
+</code></pre>
+					<figcaption>køden viser</figcaption>
+				</figure>
+
+				<figure id="img:HRGLR">
+					<h4></h4>
+					<img src="figures/p1p2f4.png">
+					<figcaption>Bildet viser</figcaption>
+				</figure>
+
+				<figure id="img:HRGHR">
+					<h4></h4>
+					<img src="figures/p1p2f5.png">
+					<figcaption>Bildet viser</figcaption>
+				</figure>
+
+				<h4>d)</h4>
+				<div class="question">
+					A particularly warm day in springtime snow avalanches will surely occur on the railroad line.  One is worried about the cost associated with these avalanches. Assume that there are no costs at low risk locations, while each high risk location will cost <script type="math/tex">5000</script> kroner to clean. The expected total cost is then <script type="math/tex">\sum_{n=1}^{50}\left(0\times P(X_n = 1) + 5000\times P(X_n = 2)\right)</script>. One can alternatively decide to clean the tracks at all locations ahead of the daily operation, at the cost of <script type="math/tex">100000</script>.
+					<br>
+					The railroad company chooses the alternative with minimum expected cost, and this decision problem is mathematically formulated as follows:
+					<script type="math/tex; mode=display">
+						\min\left\{100000, 5000\sum_{n=1}^{50}P(X_n = 2)\right\}
+					</script>
+					Based on your answer in a), what is the optimal decision?
+				</div>
+
+				<figure id="code:EC">
+					<h4></h4>
+<pre class="Python"><code class="me llamo">
+total_cost = 5000 * sum(P(X = altitude)["high"] for altitude in range(altitudes))
+cheapest = min(1E5, high_risk_clean_cost)
+</code></pre>
+					<figcaption>køden viser</figcaption>
+				</figure>
+
+				The optimal decision is to simply clean all the tracks ahead of the daily operation, at the price of 100,000.
+
+				<h4>e)</h4>
+				<div class="question">
+					By installing a sensor, as in c), one can learn about high or low risks, and this allows informed decisions about cleaning the tracks up front or not. Before conducting the measurement, a goal is to find the best location for the sensor. The expected gain in information, when the sensor is placed at location <script type="math/tex">k</script> is:
+					<script type="math/tex; mode=display">
+						V_k = \sum_{i=1}^2\min\left\{100000, 5000\sum_{n=1}^{50}P(X_n = 2\,|\,X_k = i)\right\}P(X_k = i)
+					</script>
+					Use the results from c) to compute the expected information gain. Plot the expected information gain <script type="math/tex">V_k</script> as a function of <script type="math/tex">k</script>.
+					<br>
+					What is the best location for the sensor? Discuss why this is the best?
+				</div>
+
+				<figure id="code:ECGSA">
+					<h4></h4>
+<pre class="Python"><code class="me llamo">
+V = [0 for k in range(altitudes)]
+
+for state in ("low", "high"):
+	for k in range(altitudes):
+		cost = 5000 * sum(P(X = alt, **{state: k})["high"] for alt in range(altitudes))
+		V[k] += min(1E5, cost) * P(X = k)[state]
+</code></pre>
+					<figcaption>køde</figcaption>
+				</figure>
+
+				<figure id="img:ECGSA">
+					<h4></h4>
+					<img src="figures/p1p2f6.png">
+					<figcaption>Bildet viser</figcaption>
+				</figure>
+
+				The minimum is found at <script type="math/tex">(30, 86368)</script>.
+
+				<h3>Conclusion</h3>
+				This project has given us insight in solving real statitical problems by simulation events.
+			</div>
+		</main>
+
+		<div id="filler"></div>
+		<footer>
+			<span style="color:red">6. september 2017</span>
+		</footer>
+	</body>
+</html>
