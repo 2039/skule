@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 
 # Fix n = 30 and simulate P(Z = 1)
 N1 = 30
-K1 = [k for k in range(1, N1)]
+K1 = [k for k in range(1, N1+1)]
 Y1 = [k / N1 * m.log(N1 / k) for k in K1]
 plt.plot(K1, Y1, color="blue", label="P(Z = 1| N = 30)")
 
 # Fix n = 40 and simulate P(Z = 1)
 N2 = 40
-K2 = [k for k in range(1, N2)]
+K2 = [k for k in range(1, N2+1)]
 Y2 = [k / N2 * m.log(N2 / k) for k in K2]
 plt.plot(K2, Y2, color="red", label="P(Z = 1| N = 40)")
 
@@ -21,5 +21,12 @@ plt.plot(K2, Y2, color="red", label="P(Z = 1| N = 40)")
 # maximum probability is reached when k ~ 15.
 
 #Bruk print-f-funksjon for å skrive ut max y-verdi i begge tilfeller.
+plt.grid(True)
+plt.ylabel("P(Z = 1)");plt.xlabel("k"); plt.title("Probability of Choosing the Best Candidate, Given k")
+#plt.savefig('p1p1f1.png', transparent=True, bbox_inches='tight',)
 
+print(Y1.index(max(Y1)))
+print(max(Y1))
+print(Y2.index(max(Y2)))
+print(max(Y2))
 plt.show()

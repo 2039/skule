@@ -7,40 +7,51 @@
 <body>
     <h1>Problem 1 introduction</h1>
     <p>
-        The problem we solved is perhaps best known as the secretary problem. Assume that there is a company looking for
-        a new employee. What is the probability of choosing the best candidate among a set of applicants? If one assumes
-        that the order of the candidates is entirely random and that once a person is rejected, he or she is rejected
-        for ever, it can be shown that there is a strategy that will choose surprisingly often the best candidate --
-        or at least one of the top three candidates.
+        There is a company looking for a new employee. What is the probability of choosing the best candidate
+        among a set of applicants? Assume that the order of the candidates is entirely random and that once a person
+        is rejected, he or she is rejected permanently. There is then a strategy that will choose the best candidate
+        often -- or at least one of the top three candidates.
     </p>
-    Briefly, the strategy is to discard the k first candidates, find the best candidate among the k rejected
-    candidates, x*, and choose the first person after the kth canddate that is better than x*.
+    Briefly, the strategy is to discard the k first candidates and find the best candidate among the first k rejected
+    candidates, x*. Then choose the first person after the kth candidate that is better than x*.
+
+    <pre><code>
+        def strategy(candidate_values, k):
+            best_candidate_value_among_first_k = max(candidate_values[:k])
+            for candidate in candidate_values[k:]:
+                if candidate > best_candidate_value_among_first_k:
+                return candidate
+            #If best among first k candidates, we pick the last candidate.
+            else:
+                return candidate_values[-1]
+    </code></pre>
+
     <h2>Problem 1 a)</h2>
     <p>
         A strategy one can use to obtain P(Z = 1), the probability of picking the best candidate, is to condition on
-        another random variable Y, where Y denotes the event that the best candidate will be the <i>i</i>th candidate in the
-        process. By using marginalization over Y, equation (1) is obtained.
+        another random variable Y, where Y denotes the event that the best candidate will be the <i>i</i>th interviewee.
+        By using marginalization over Y, equation (1) is obtained.
     </p>
     <p>
-        Using the proposed strategy, P(Z = 1|Y = <i>i</i>) will be 0 for all <i>i</i> less than <i>k</i> + 1, which
-        is the cut-off value. The reason for this is that P(Z = 1|Y = <i>i</i>) is the probability that
+        Using the proposed strategy, P(Z = 1|Y = <i>i</i>) will be 0 for all <i>i</i> less than or equal to <i>k</i>
+        The reason for this is that P(Z = 1|Y = <i>i</i>) is the probability that
         the strategy will pick the best candidate when the position of the candidate is known to be <i>i</i>. However,
         the strategy will never pick the right candidate as long as the best candidate is among the <i>k</i> candidates
-        rejected. Therefore, the probability is P(Z = 1|Y = <i>i</i>) is 0 for all <i>i</i> less than
+        rejected. Therefore, the probability for P(Z = 1|Y = <i>i</i>) is 0 for all <i>i</i> less than
         <i>i</i> less than <i>k</i> + 1.
     </p>
     <p>
-        Now, in order for the strategy to be able to pick the best candidate, the best candidate among the <i>i</i> -
-        1 first candidates must be among the k rejected. Seeing that this candidate can be located anywhere among the
-        <i>k</i> candidates, <i>k</i>/(<i>i</i> - 1) is obtained.
+        If we assume that the ith candidate is the best candidate, then the best candidate among the first i - 1 candidates
+        must be among the first k candidates. Thus, P(Z = 1|Y = i) = k/(i - 1) is obtained.
     </p>
     <p>
         By noting that the best candidate is uniformly distributed among the total of <i>n</i> candidates,
-        one can see that P(Y = <i>i</i>) equals 1/<i>n</i>. Thus, equation (2) has been obtained. By using known rules
-        of sums, <k>k</k> and 1/<i>n</i> can be extracted by the sum, the result of which is equation (3).
+        one can see that P(Y = <i>i</i>) equals 1/<i>n</i>. Thus, equation (2) has been obtained. By using the linearity
+        of sums, we obtain equation (3).
     </p>
     <p>
-        Equation (3) will be less than or equal to the integral found in equation (4), which equals equation (5).
+        It can be shown that equation (3) will be less than or equal to the integral found in equation (4).
+        Solving the integral yields equation (5).
     </p>
     <p>
         With the result found in equation and (5), the desired result has been proven.
@@ -48,57 +59,93 @@
     <h2>Problem 1 b)</h2>
     <p>Compute mode here. </p>
     <p>
-        Let us differentiate the result we found in equation (5).
+        To find the mode of the strategy, we differentiate the result from equation (5) in equation (6), yielding the
+        result in equation (11). Generally, the probability of choosing the best candidate given k is shown in LISTiNG 1.
     </p>
-    <p>Insert plot for n = 30 here.</p>
+    <pre><code>
+        N1 = 30
+        K1 = [k for k in range(1, N1)]
+        Y1 = [k / N1 * m.log(N1 / k) for k in K1]
+    </code></pre>
+    <p>This gives the plot in FIGURE 1</p>
+    <p>Insert plot for n = 30 and n = 40 here.</p>
     <p>
-        By studying the plots generated by fixing n to 30, it becomes clear that the probability of choosing
-        the best candidate grows as k approaches 11. After k = 11, the probability of choosing the best candidate goes
-        down. In other words, This result corresponds nicely to what was found earlier, namely that the ideal value of k is n/e.
-    </p>
-    <p>Insert plot for n = 40 here.</p>
-    <p>
-        Analogously, a similar pattern emerges when n is fixed to 40. The probability of choosing
-        the best candidate grows as k approaches 12. Once again, the best value of k seems to be in the vicinity of n/e.
-    </p>
-    <p>
-        The interpretation of this result seems to be that probability of picking the best candidate grows as one increases the number of candidates
-        rejected. However, this tendency applies until k reaches its zenith at around the value of n/e. Note that this was
-        the value that was ascertained to be the analytically optimal value for k.
+        By studying the plot in FIGURE 1, it becomes clear that the probability of choosing
+        the best candidate grows as k approaches 11 and 15, given n = 30 and n = 40, respeectively.
+        After these, the probability of choosing the best candidate declines. This result corresponds
+        nicely to what was found earlier, that the optimal value of k is n/e.
     </p>
     <p>
-        How did we arrive at the results?
+        The interpretation is that the highest probability of choosing the best candidate is by interviewing 11 and 15
+        candidates, given that there are 30 and 40 candidates, respectively. Note that the analytically optimal
+        value of k was 11.03 and 14.7. Rounding these off, we get 11 and 15. The probability of choosing the best
+        candidate in these cases were approximately 36.8 %.
     </p>
 
     <h2>Problem 1 c)</h2>
     <p>
-        For this task, the value of n was fixed to 30, whereas the value of k was fixed to n/e, the analytically optimal
-        value for k found in Problem 1 b). To explore how the strategy fared in practice, the strategy was run on a
-        simulation a thousand times. The simulation used a random uniformly distributed variable in order to generate
-        the various candidate values.
+        For this task, we run a thousand realizations. The value of n was fixed to 30, and k = 11; the optimal value
+        found in b). The simulation used a random uniformly distributed variable in order to generate
+        the various candidate values. We then found the number of times the best candidate was chosen, the number of times
+        all candidates were interviewed, and the number of times one of the top three candidates were chosen.
     </p>
     <p>
-        The following results were found:
-        The strategy was able to find the right candidate 391 times.
-        The strategy was in the top three 59.5 % of the time.
-        The strategy ended up interviewing all the candidates 40.4 % of the time.
+        The algorithm for choosing the best candidate is shown in LISTING 2.
+        The algorithm was able to find the right candidate 367 times out of a thousand realizations.
     </p>
+
+    best_candidate_value_given_strategy = strategy(candidate_values= candidate_values_array, k = k_optimal)
+    best_candidate_value = max(candidate_values_array)
+
+    if(best_candidate_value_given_strategy == best_candidate_value):
+    correct_answers += 1
+
+    <p>
+        The algorithm for checking if every candidate was interviewed, is shown in LISTING 3. This the same as choosing
+        the last candidate. This may be the best candidate. The result is that the algorithm ended up interviewing all the candidates 422 times.
+    </p>
+
+    best_candidate_value_index = candidate_values_array.index(best_candidate_value_given_strategy)
+    if (best_candidate_value_index == len(candidate_values_array) - 1):
+    all_candidates_interviewed += 1
+
+    <p>
+        The algorithm for checking if the chosen candidate is among the best three candidates, is shown in LISTING 4.
+        The strategy was in the top three 569 times.
+    </p>
+
+    top_three_candidate_values = set()
+    for j in range(3):
+    max_value_index = candidate_values_array.index(max(candidate_values_array))
+    top_three_candidate_values.add(candidate_values_array.pop(max_value_index))
+    if (best_candidate_value_given_strategy in top_three_candidate_values):
+    answer_in_top_three += 1
+
+    <p>
+        We expected the strategy to choose the best candidate 368 times. However, it was off by 1, which seems unreasonably
+        good. It would be interesting to know the variance to see if we were lucky or not.
+    </p>
+
     <h2>Problem 1 d)</h2>
     <p>
-        In contrast to Problem 1 c), the value of n now considered as a random variable N taking one of the values
+        In contrast to c), the value of n now considered as a uniformly distributed variable N taking the values
         contained in the interval [16,45]. The value of k, which could be any of the values in the interval [1,15], was
-        chosen based on the expected value of N.  The expected value of N is 30. Hence, the value of k based on
-        30 being the expected of value of N, was chosen to be 11, which is approximately the optimal value 30/e.
-        To explore how the strategy fared in practice, as with Problem 1 c), the strategy was run on a
-        simulation a thousand times. Once again, the simulation used a random uniformly distributed variable in order to generate
-        the various candidate values. However, by contrast to Problem 1 c), the simulations were executed for all values
-        of N.
+        found by running multiple realizations, based on the EQUATION X and the algorithm described in c). The result
+        was that the optimal k was 10, based on FIGURE 3. The expected value of N is 30. Given the expected value of N
+        was 30, we anticipated that the optimal k would be 11, as shown in b). The discrepancy might be a consequence of running too few realizations.
     </p>
     <p>
-        These questions will be answered by running the strategy a thousand realizations.
-        The strategy was able to find the right candidate 351 times.
-        The strategy was in the top three 56.34 % of the time.
-        The strategy ended up interviewing all the candidates 43.2 % of the time.
+        Using k = 10, we found the following result:
+        1. The strategy was able to find the right candidate 364.1 times of a thousand realizations.
+        2. The strategy was in the top three 374.6 times.
+        3. The strategy ended up interviewing all the candidates 590.4 times.
+
+        These results were based on the average of each n.
+
+        We found fewer correct candidates than in c), as expected, given that N is a random variable. However, the strategy
+        ended up interviewing all candidates fewer times. It would be interesting to see if this was a coincident or not.
+        The strategy also ended up choosing a candidate among the top three best candidates more often. This is perhaps expected due
+        to the strategy choosing the best candidate less often. 
     </p>
 </body>
 </html>
